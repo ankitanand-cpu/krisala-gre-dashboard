@@ -22,6 +22,12 @@ interface LoginResponse {
   message?: string;
 }
 
+export const GRE_TEAM_MEMBERS = [
+  "Mohini Jadhav",
+  "Shivam Shelke",
+  "Rakhi Sangwan",
+];
+
 // Password mapping for frontend users
 // Maps email -> { frontendPassword, backendPassword }
 const PASSWORD_MAPPING: Record<string, { frontend: string; backend: string }> =
@@ -144,16 +150,8 @@ export async function POST(request: NextRequest) {
 
     if (result.success && result.data) {
       // Check if user is authorized to access the system
-      const authorizedUsers = [
-        "ujjawala bedmutha",
-        "anurag goyal",
-        "chetan dhadiwal",
-      ];
-      const userFullName = result.data.salesPerson.full_name.toLowerCase();
-
-      const isAuthorized = authorizedUsers.some(
-        (authorizedUser) => userFullName === authorizedUser.toLowerCase()
-      );
+      const userFullName = result.data.salesPerson.full_name;
+      const isAuthorized = GRE_TEAM_MEMBERS.includes(userFullName);
 
       if (!isAuthorized) {
         return NextResponse.json(
