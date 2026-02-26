@@ -305,8 +305,13 @@ export default function CustomersPage() {
       {/* Print styles */}
       <style jsx global>{`
         @media print {
-          [data-print-hide] {
+          [data-print-hide],
+          [data-screen-only],
+          [data-print-content] {
             display: none !important;
+          }
+          [data-print-grid] {
+            display: block !important;
           }
           body {
             background: white !important;
@@ -321,21 +326,13 @@ export default function CustomersPage() {
             padding: 0 !important;
             max-width: 100% !important;
           }
-          [data-print-content] {
-            background: white !important;
-            border: 1px solid #ccc !important;
-            color: black !important;
-            page-break-inside: avoid;
-            margin-bottom: 12px;
-          }
-          [data-print-content] * {
-            color: black !important;
-          }
-          [data-print-content] span.text-white\/50 {
-            color: #666 !important;
-          }
           @page {
             margin: 1cm;
+          }
+        }
+        @media screen {
+          [data-print-grid] {
+            display: none !important;
           }
         }
       `}</style>
@@ -463,7 +460,7 @@ export default function CustomersPage() {
                  <LoadingSpinner size="lg" text="Loading customers..." />
                </div>
             ) : filteredCustomers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-6" data-screen-only>
               {filteredCustomers.map((customer) => (
                 <Card key={customer.id} data-print-content className="bg-[var(--bg-surface)] border border-white/10 text-white overflow-hidden">
                   <CardHeader className="bg-white/5 pb-3">
@@ -532,6 +529,54 @@ export default function CustomersPage() {
                 <div className="text-center py-12 text-white/50">
                     No customers found for this date.
                 </div>
+            )}
+            {!customersLoading && filteredCustomers.length > 0 && (
+              <div data-print-grid className="mt-6">
+                <table className="w-full border-collapse text-xs">
+                  <thead>
+                    <tr>
+                      <th className="border px-2 py-1 text-left">Client Name</th>
+                      <th className="border px-2 py-1 text-left">Contact (Masked)</th>
+                      <th className="border px-2 py-1 text-left">Email (Masked)</th>
+                      <th className="border px-2 py-1 text-left">Source</th>
+                      <th className="border px-2 py-1 text-left">CP Firm Name</th>
+                      <th className="border px-2 py-1 text-left">Booking For</th>
+                      <th className="border px-2 py-1 text-left">Executive Name</th>
+                      <th className="border px-2 py-1 text-left">Executive Number</th>
+                      <th className="border px-2 py-1 text-left">Sourcing Manager</th>
+                      <th className="border px-2 py-1 text-left">Closing Manager</th>
+                      <th className="border px-2 py-1 text-left">PAX</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCustomers.map((customer) => (
+                      <tr key={customer.id}>
+                        <td className="border px-2 py-1">{customer.name}</td>
+                        <td className="border px-2 py-1">{maskPhone(customer.phone)}</td>
+                        <td className="border px-2 py-1">{maskEmail(customer.email)}</td>
+                        <td className="border px-2 py-1">{customer.source}</td>
+                        <td className="border px-2 py-1">
+                          {customer.cp_firm_name_0bf || customer.channelPartner || "-"}
+                        </td>
+                        <td className="border px-2 py-1">{customer.booking_for}</td>
+                        <td className="border px-2 py-1">{customer.executive_name}</td>
+                        <td className="border px-2 py-1">
+                          {customer.cp_contact_number_67b || "-"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {customer.sourcing_manager || "-"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {customer.closing_manager_cb3 || "-"}
+                        </td>
+                        <td className="border px-2 py-1">
+                          {customer.pax}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>
