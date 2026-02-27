@@ -45,27 +45,16 @@ interface Customer {
   remarks?: string;
   channelPartner?: string | null;
   channel_partner_0f8?: string;
+  channel_partner_representative_637?: string;
   // New fields requested
   source?: string;
   cp_firm_name_0bf?: string;
   sourcing_manager?: string;
   cp_contact_number_67b?: string;
   // Mapped fields for display
-  booking_for?: string; // Mapped from preferrences_563
-  executive_name?: string; // Mapped from gre_attended_282? Or salesPerson? The user said "Executive Name". In the JSON "gre_attended_282": "Mohini Jadhav". Let's assume that or salesPerson. But wait, "salesPerson": "Arif Saifi" is also there. Let's look for "Executive". The JSON has "channel_partner_representative_637": "". Let's map Executive Name to Sales Person (Relationship Manager) or Sourcing Manager based on context, but user asked for "Executive Name". The prompt says: "Executive Name, Executive Number".
-  // Looking at the JSON:
-  // "salesPerson": "Arif Saifi"
-  // "sourcing_manager": "Sanket Madhavi"
-  // "closing_manager_cb3": "Arif Saifi"
-  // "gre_attended_282": "Mohini Jadhav"
-  // Let's use "salesPerson" as Executive Name for now as it's the primary contact usually, or "channel_partner_representative_637" if it's external.
-  // Actually, usually "Sales Executive" is the sales person.
-  // Let's use:
-  // Executive Name -> salesPerson
-  // Executive Number -> We need a field for this. The JSON has "cp_contact_number_67b": "9987257974".
-  // Let's check if there is a sales person number. The JSON doesn't have it explicitly in the root.
-  // We will use what's available.
-  pax?: string; // Mapped from visited_with_95e? Or count of people? "visited_with_95e": "Family". It's a string.
+  booking_for?: string;
+  executive_name?: string;
+  pax?: string;
 }
 
 export default function CustomersPage() {
@@ -124,8 +113,13 @@ export default function CustomersPage() {
         // Booking For (2BHK/1BHK) -> preferrences_563
         customer.booking_for = customer.preferrences_563 ? customer.preferrences_563.join(", ") : "N/A";
 
-        // Executive Name -> salesPerson (This is usually the RM/Sales Executive)
-        customer.executive_name = customer.salesPerson || "N/A";
+        // Executive Name -> channel_partner_representative_637 (Channel Partner Representative)
+        // Fallbacks: sourcing_manager -> salesPerson -> "N/A"
+        customer.executive_name =
+          customer.channel_partner_representative_637 ||
+          customer.sourcing_manager ||
+          customer.salesPerson ||
+          "N/A";
 
         // Executive Number -> Not strictly in JSON root for salesPerson. 
         // We have "cp_contact_number_67b" for CP.

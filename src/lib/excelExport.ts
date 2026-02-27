@@ -37,6 +37,7 @@ export interface Customer {
   // GRE fields
   sourcing_manager?: string;
   cp_contact_number_67b?: string;
+  channel_partner_representative_637?: string;
 }
 
 export interface ExportOptions {
@@ -319,7 +320,11 @@ export const prepareGREDataForExport = (customers: Customer[]): GREExportDataRow
 
     const cpFirmName = customer.channelPartner || customer.channel_partner_0f8 || '';
     const bookingFor = formatPreferences(customer.preferrences_563) || '';
-    const executiveName = customer.salesPerson || '';
+    const executiveName =
+      customer.channel_partner_representative_637 ||
+      customer.sourcing_manager ||
+      customer.salesPerson ||
+      '';
     const executiveNumber = customer.cp_contact_number_67b || '';
     const sourcingManager = customer.sourcing_manager || '';
     const closingManager = customer.closing_manager_cb3 || '';
